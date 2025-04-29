@@ -15,10 +15,9 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 
-@WebServlet("/article/list")
-public class ArticleListServlet extends HttpServlet {
+@WebServlet("/member/list")
+public class MemberListServlet extends HttpServlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -52,44 +51,24 @@ public class ArticleListServlet extends HttpServlet {
 			int limitFrom = (page - 1) * itemsInAPage;
 
 			SecSql sql = SecSql.from("SELECT COUNT(*)");
-			sql.append("FROM article;");
+			sql.append("FROM `member`;");
 
 			int totalCnt = DBUtil.selectRowIntValue(conn, sql);
-			int totalPage = (int) Math.ceil(totalCnt / (double) itemsInAPage);
+			int totalPage = (int) Math.ceil(totalCnt / (double)itemsInAPage);
 
 			sql = SecSql.from("SELECT *");
-			sql.append("FROM article");
+			sql.append("FROM `member`");
 			sql.append("ORDER BY id DESC");
 			sql.append("LIMIT ?, ?;", limitFrom, itemsInAPage);
 
-			List<Map<String, Object>> articleRows = DBUtil.selectRows(conn, sql);
-			
-			
-
-			HttpSession session = request.getSession();
-
-			boolean isLogined = false;
-			int loginedMemberId = -1;
-			Map<String, Object> loginedMember = null;
-
-			if (session.getAttribute("loginedMemberId") != null) {
-				isLogined = true;
-				loginedMemberId = (int) session.getAttribute("loginedMemberId");
-				loginedMember = (Map<String, Object>) session.getAttribute("loginedMember");
-			}
-
-			request.setAttribute("isLogined", isLogined);
-			request.setAttribute("loginedMemberId", loginedMemberId);
-			request.setAttribute("loginedMember", loginedMember);
-
-			
+			List<Map<String, Object>> memberRows= DBUtil.selectRows(conn, sql);
 			
 			request.setAttribute("page", page);
-			request.setAttribute("articleRows", articleRows);
+			request.setAttribute("memberRows", memberRows);
 			request.setAttribute("totalCnt", totalCnt);
 			request.setAttribute("totalPage", totalPage);
 
-			request.getRequestDispatcher("/jsp/article/list.jsp").forward(request, response);
+			request.getRequestDispatcher("/jsp/member/list.jsp").forward(request, response);
 
 		} catch (SQLException e) {
 			System.out.println("에러 1 : " + e);
